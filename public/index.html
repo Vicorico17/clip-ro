@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ClipRO</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Workspace navigation">
+        <div class="brand">
+          <span class="brand-mark">CR</span>
+          <span>ClipRO</span>
+        </div>
+        <nav class="nav-list">
+          <a class="nav-item is-active" href="#accounts">Accounts</a>
+          <a class="nav-item" href="#sources">Sources</a>
+          <a class="nav-item" href="#jobs">Jobs</a>
+          <a class="nav-item" href="#clips">Clips</a>
+        </nav>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Connected creator workspace</p>
+            <h1>Auto clips from long-form videos and streams</h1>
+          </div>
+          <button class="ghost-button" id="syncAllButton" type="button">Sync sources</button>
+        </header>
+
+        <section class="metrics" aria-label="Workspace metrics">
+          <article class="metric">
+            <span>Connected</span>
+            <strong id="metricAccounts">0</strong>
+          </article>
+          <article class="metric">
+            <span>Sources</span>
+            <strong id="metricSources">0</strong>
+          </article>
+          <article class="metric">
+            <span>Active jobs</span>
+            <strong id="metricJobs">0</strong>
+          </article>
+          <article class="metric">
+            <span>Ready clips</span>
+            <strong id="metricClips">0</strong>
+          </article>
+        </section>
+
+        <section class="panel" id="accounts" aria-labelledby="accountsHeading">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Step 1</p>
+              <h2 id="accountsHeading">Connect accounts</h2>
+            </div>
+            <span class="status-pill">OAuth-ready demo</span>
+          </div>
+          <div class="account-grid" id="accountGrid"></div>
+        </section>
+
+        <div class="work-grid">
+          <section class="panel" id="sources" aria-labelledby="sourcesHeading">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Step 2</p>
+                <h2 id="sourcesHeading">Synced long-form sources</h2>
+              </div>
+              <button class="ghost-button" id="manualSourceToggle" type="button">Paste URL</button>
+            </div>
+
+            <form class="manual-source is-hidden" id="manualSourceForm">
+              <label>
+                <span>Manual video or stream URL</span>
+                <input
+                  name="sourceUrl"
+                  type="url"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  autocomplete="off"
+                />
+              </label>
+              <button class="primary-button" type="submit">Add source</button>
+            </form>
+
+            <div class="source-list" id="sourceList"></div>
+          </section>
+
+          <section class="panel" aria-labelledby="generatorHeading">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Step 3</p>
+                <h2 id="generatorHeading">Generate clips</h2>
+              </div>
+              <span class="status-pill" id="selectedSourceBadge">No source</span>
+            </div>
+
+            <form class="clip-form" id="clipForm">
+              <label>
+                <span>Selected source</span>
+                <select id="sourceSelect" name="sourceId" required>
+                  <option value="">Choose a source</option>
+                </select>
+              </label>
+
+              <div class="form-row">
+                <label>
+                  <span>Category</span>
+                  <select name="category">
+                    <option>Gaming</option>
+                    <option>Podcast</option>
+                    <option>Education</option>
+                    <option>Stream</option>
+                    <option>General</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Frame</span>
+                  <select name="format">
+                    <option>9:16</option>
+                    <option>1:1</option>
+                    <option>16:9</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="form-row three">
+                <label>
+                  <span>Clips</span>
+                  <input name="clipCount" type="number" min="1" max="12" value="5" />
+                </label>
+                <label>
+                  <span>Min seconds</span>
+                  <input name="minDuration" type="number" min="10" max="90" value="20" />
+                </label>
+                <label>
+                  <span>Max seconds</span>
+                  <input name="maxDuration" type="number" min="15" max="180" value="60" />
+                </label>
+              </div>
+
+              <label class="check-chip">
+                <input name="captions" type="checkbox" checked />
+                <span>Burn captions into exports</span>
+              </label>
+
+              <p class="form-error" id="formError" role="alert"></p>
+              <button class="primary-button" type="submit">Generate clips</button>
+            </form>
+          </section>
+        </div>
+
+        <section class="panel" id="jobs" aria-labelledby="jobsHeading">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Pipeline</p>
+              <h2 id="jobsHeading">Processing jobs</h2>
+            </div>
+            <span class="status-pill">Import · transcript · score · render</span>
+          </div>
+          <div class="job-list" id="jobList"></div>
+        </section>
+
+        <section class="clip-section" id="clips" aria-labelledby="clipsHeading">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Step 4</p>
+              <h2 id="clipsHeading">Generated clips</h2>
+            </div>
+            <select id="clipFilter" aria-label="Clip filter">
+              <option value="all">All sources</option>
+            </select>
+          </div>
+          <div class="clip-grid" id="clipGrid"></div>
+        </section>
+      </main>
+    </div>
+
+    <template id="emptyStateTemplate">
+      <div class="empty-state">
+        <strong>No items yet</strong>
+        <span>Connect an account or start a job.</span>
+      </div>
+    </template>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

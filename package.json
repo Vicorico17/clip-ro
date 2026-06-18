@@ -1,0 +1,14 @@
+{
+  "name": "clip-ro",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A basic platform prototype for generating short clips from long-form videos and streams.",
+  "type": "module",
+  "scripts": {
+    "dev": "node src/server.js",
+    "start": "node src/server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
