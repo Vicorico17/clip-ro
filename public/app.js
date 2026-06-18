@@ -11,6 +11,21 @@ const syncAllButton = document.querySelector("#syncAllButton");
 const manualSourceToggle = document.querySelector("#manualSourceToggle");
 const manualSourceForm = document.querySelector("#manualSourceForm");
 const emptyStateTemplate = document.querySelector("#emptyStateTemplate");
+const setupHeading = document.querySelector("#setupHeading");
+const setupSummary = document.querySelector("#setupSummary");
+const setupProgressBar = document.querySelector("#setupProgressBar");
+const openOnboardingButton = document.querySelector("#openOnboardingButton");
+const onboardingOverlay = document.querySelector("#onboardingOverlay");
+const closeOnboardingButton = document.querySelector("#closeOnboardingButton");
+const onboardingForm = document.querySelector("#onboardingForm");
+const onboardingTitle = document.querySelector("#onboardingTitle");
+const onboardingStepLabel = document.querySelector("#onboardingStepLabel");
+const onboardingBackButton = document.querySelector("#onboardingBackButton");
+const onboardingNextButton = document.querySelector("#onboardingNextButton");
+const onboardingError = document.querySelector("#onboardingError");
+const onboardingReview = document.querySelector("#onboardingReview");
+const onboardingStepNodes = [...document.querySelectorAll(".onboarding-step")];
+const onboardingDots = [...document.querySelectorAll(".step-dots span")];
 
 const metricAccounts = document.querySelector("#metricAccounts");
 const metricSources = document.querySelector("#metricSources");
@@ -26,6 +41,15 @@ const toneMap = {
   green: "#0f8f50"
 };
 
+const onboardingStorageKey = "clipro.creatorOnboarding.v1";
+const onboardingSessionKey = "clipro.creatorOnboarding.seen";
+const onboardingSteps = [
+  { title: "Creator profile", label: "Step 1 of 4" },
+  { title: "Content accounts", label: "Step 2 of 4" },
+  { title: "Clip defaults", label: "Step 3 of 4" },
+  { title: "Review setup", label: "Step 4 of 4" }
+];
+
 let dashboard = {
   providers: [],
   accounts: [],
@@ -36,6 +60,8 @@ let dashboard = {
 };
 let selectedSourceId = "";
 let pollTimer = null;
+let onboardingStep = 0;
+let clipDefaultsApplied = false;
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -70,6 +96,83 @@ function emptyState(title, body) {
   return node;
 }
 
+function getCreatorProfile() {
+  try {
+    return JSON.parse(localStorage.getItem(onboardingStorageKey) || "null");
+  } catch {
+    return null;
+  }
+}
+
+function saveCreatorProfile(profile) {
+  localStorage.setItem(onboardingStorageKey, JSON.stringify(profile));
+}
+
+function getOnboardingData() {
+  const formData = new FormData(onboardingForm);
+  return {
+    creatorName: String(formData.get("creatorName") || "").trim(),
+    creatorCategory: formData.get("creatorCategory") || "General",
+    goal: formData.get("goal") || "Grow audience",
+    platforms: formData.getAll("platforms"),
+    primaryPlatform: formData.get("primaryPlatform") || "youtube",
+    defaultFormat: formData.get("defaultFormat") || "9:16",
+    defaultClipCount: Number(formData.get("defaultClipCount") || 5),
+    defaultMinDuration: Number(formData.get("defaultMinDuration") || 20),
+    defaultMaxDuration: Number(formData.get("defaultMaxDuration") || 60),
+    postingPace: formData.get("postingPace") || "Daily",
+    defaultCaptions: formData.has("defaultCaptions"),
+    autoSync: formData.has("autoSync")
+  };
+}
+
+function setFormValue(name, value) {
+  const field = onboardingForm.elements[name];
+  if (!field || value === undefined || value === null) return;
+
+  if (field instanceof RadioNodeList && field[0]?.type === "checkbox") {
+    [...field].forEach((checkbox) => {
+      checkbox.checked = Array.isArray(value) && value.includes(checkbox.value);
+    });
+    return;
+  }
+
+  if (field instanceof RadioNodeList) {
+    field.value = value;
+    return;
+  }
+
+  if (field.type === "checkbox") {
+    field.checked = Boolean(value);
+    return;
+  }
+
+  field.value = value;
+}
+
+function loadCreatorProfileIntoForm(profile) {
+  if (!profile) return;
+
+  Object.entries(profile).forEach(([key, value]) => {
+    setFormValue(key, value);
+  });
+}
+
+function applyCreatorDefaults(profile) {
+  if (!profile) return;
+
+  if (clipForm.elements.category) clipForm.elements.category.value = profile.creatorCategory || "General";
+  if (clipForm.elements.format) clipForm.elements.format.value = profile.defaultFormat || "9:16";
+  if (clipForm.elements.clipCount) clipForm.elements.clipCount.value = profile.defaultClipCount || 5;
+  if (clipForm.elements.minDuration) clipForm.elements.minDuration.value = profile.defaultMinDuration || 20;
+  if (clipForm.elements.maxDuration) clipForm.elements.maxDuration.value = profile.defaultMaxDuration || 60;
+  if (clipForm.elements.captions) clipForm.elements.captions.checked = profile.defaultCaptions !== false;
+}
+
+function platformLabel(platformId) {
+  return dashboard.providers.find((provider) => provider.id === platformId)?.label || platformId;
+}
+
 async function requestJson(url, options = {}) {
   const response = await fetch(url, {
     ...options,
@@ -92,6 +195,41 @@ function updateMetrics() {
   metricSources.textContent = dashboard.metrics.sources ?? 0;
   metricJobs.textContent = dashboard.metrics.activeJobs ?? 0;
   metricClips.textContent = dashboard.metrics.readyClips ?? 0;
+}
+
+function renderSetupSummary() {
+  const profile = getCreatorProfile();
+  const completedSteps = [
+    Boolean(profile?.creatorCategory),
+    Boolean(profile?.platforms?.length),
+    Boolean(profile?.defaultFormat),
+    Boolean(profile?.completedAt)
+  ].filter(Boolean).length;
+  const progress = profile?.completedAt ? 100 : Math.max(0, completedSteps * 25);
+
+  setupProgressBar.style.width = `${progress}%`;
+
+  if (!profile?.completedAt) {
+    setupHeading.textContent = "Set up creator workspace";
+    openOnboardingButton.textContent = "Start setup";
+    setupSummary.innerHTML = `
+      <span class="mini-pill">Creator profile</span>
+      <span class="mini-pill">Platforms</span>
+      <span class="mini-pill">Clip defaults</span>
+    `;
+    return;
+  }
+
+  const name = profile.creatorName || `${profile.creatorCategory} creator`;
+  setupHeading.textContent = `${name} is ready`;
+  openOnboardingButton.textContent = "Edit setup";
+  setupSummary.innerHTML = `
+    <span class="mini-pill is-ready">${escapeHtml(profile.goal)}</span>
+    <span class="mini-pill">${escapeHtml(profile.creatorCategory)}</span>
+    <span class="mini-pill">${escapeHtml(profile.defaultFormat)}</span>
+    <span class="mini-pill">${escapeHtml(profile.defaultClipCount)} clips/source</span>
+    <span class="mini-pill">${escapeHtml(profile.postingPace)}</span>
+  `;
 }
 
 function renderAccounts() {
@@ -282,6 +420,7 @@ function renderClips() {
 }
 
 function render() {
+  renderSetupSummary();
   updateMetrics();
   renderAccounts();
   renderSources();
@@ -291,10 +430,144 @@ function render() {
   renderClips();
 }
 
+function validateOnboardingStep() {
+  const data = getOnboardingData();
+
+  if (onboardingStep === 1 && !data.platforms.length) {
+    return "Choose at least one platform.";
+  }
+
+  if (onboardingStep === 2) {
+    if (!Number.isFinite(data.defaultClipCount) || data.defaultClipCount < 1 || data.defaultClipCount > 12) {
+      return "Clips per source must be between 1 and 12.";
+    }
+    if (data.defaultMaxDuration <= data.defaultMinDuration) {
+      return "Max seconds must be greater than min seconds.";
+    }
+  }
+
+  return "";
+}
+
+function renderOnboardingReview() {
+  const data = getOnboardingData();
+  const platforms = data.platforms.map(platformLabel).join(", ") || "None";
+  const name = data.creatorName || "Creator";
+
+  onboardingReview.innerHTML = `
+    <div class="review-row">
+      <span>Creator</span>
+      <strong>${escapeHtml(name)}</strong>
+    </div>
+    <div class="review-row">
+      <span>Content</span>
+      <strong>${escapeHtml(data.creatorCategory)} · ${escapeHtml(data.goal)}</strong>
+    </div>
+    <div class="review-row">
+      <span>Platforms</span>
+      <strong>${escapeHtml(platforms)}</strong>
+    </div>
+    <div class="review-row">
+      <span>Defaults</span>
+      <strong>${escapeHtml(data.defaultClipCount)} clips · ${escapeHtml(data.defaultFormat)} · ${escapeHtml(data.defaultMinDuration)}-${escapeHtml(data.defaultMaxDuration)}s</strong>
+    </div>
+  `;
+}
+
+function renderOnboardingStep() {
+  const step = onboardingSteps[onboardingStep];
+  onboardingTitle.textContent = step.title;
+  onboardingStepLabel.textContent = step.label;
+  onboardingError.textContent = "";
+
+  onboardingStepNodes.forEach((node, index) => {
+    node.classList.toggle("is-hidden", index !== onboardingStep);
+  });
+  onboardingDots.forEach((dot, index) => {
+    dot.classList.toggle("is-active", index === onboardingStep);
+    dot.classList.toggle("is-complete", index < onboardingStep);
+  });
+
+  onboardingBackButton.disabled = onboardingStep === 0;
+  onboardingNextButton.textContent = onboardingStep === onboardingSteps.length - 1 ? "Finish setup" : "Next";
+
+  if (onboardingStep === onboardingSteps.length - 1) {
+    renderOnboardingReview();
+  }
+}
+
+function openOnboarding() {
+  loadCreatorProfileIntoForm(getCreatorProfile());
+  onboardingStep = 0;
+  renderOnboardingStep();
+  onboardingOverlay.classList.remove("is-hidden");
+  document.body.classList.add("has-modal");
+  onboardingForm.elements.creatorName?.focus();
+}
+
+function closeOnboarding() {
+  onboardingOverlay.classList.add("is-hidden");
+  document.body.classList.remove("has-modal");
+  sessionStorage.setItem(onboardingSessionKey, "1");
+}
+
+async function finishOnboarding() {
+  const data = getOnboardingData();
+  const profile = {
+    ...data,
+    defaultClipCount: clampNumber(data.defaultClipCount, 1, 12, 5),
+    defaultMinDuration: clampNumber(data.defaultMinDuration, 10, 90, 20),
+    defaultMaxDuration: clampNumber(data.defaultMaxDuration, 15, 180, 60),
+    completedAt: new Date().toISOString()
+  };
+
+  saveCreatorProfile(profile);
+  applyCreatorDefaults(profile);
+  clipDefaultsApplied = true;
+
+  for (const provider of profile.platforms) {
+    const account = findAccount(provider);
+    if (account?.status === "connected") continue;
+    await requestJson("/api/accounts/connect", {
+      method: "POST",
+      body: JSON.stringify({ provider })
+    });
+  }
+
+  if (profile.autoSync) {
+    await requestJson("/api/sources/sync", {
+      method: "POST",
+      body: JSON.stringify({})
+    });
+  }
+
+  closeOnboarding();
+  await loadDashboard();
+}
+
+function maybeOpenOnboarding() {
+  const profile = getCreatorProfile();
+  if (profile?.completedAt || sessionStorage.getItem(onboardingSessionKey)) return;
+  openOnboarding();
+}
+
+function clampNumber(value, min, max, fallback) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return fallback;
+  return Math.min(Math.max(Math.round(number), min), max);
+}
+
 async function loadDashboard() {
   dashboard = await requestJson("/api/dashboard");
   if (!selectedSourceId && dashboard.sources[0]) {
     selectedSourceId = dashboard.sources[0].id;
+  }
+  if (!clipDefaultsApplied) {
+    const profile = getCreatorProfile();
+    if (profile?.completedAt) {
+      applyCreatorDefaults(profile);
+      clipDefaultsApplied = true;
+    }
   }
   render();
 }
@@ -372,6 +645,47 @@ manualSourceToggle.addEventListener("click", () => {
   manualSourceForm.classList.toggle("is-hidden");
 });
 
+openOnboardingButton.addEventListener("click", openOnboarding);
+closeOnboardingButton.addEventListener("click", closeOnboarding);
+onboardingOverlay.addEventListener("click", (event) => {
+  if (event.target === onboardingOverlay) closeOnboarding();
+});
+
+onboardingBackButton.addEventListener("click", () => {
+  onboardingStep = Math.max(0, onboardingStep - 1);
+  renderOnboardingStep();
+});
+
+onboardingNextButton.addEventListener("click", async () => {
+  const error = validateOnboardingStep();
+  if (error) {
+    onboardingError.textContent = error;
+    return;
+  }
+
+  if (onboardingStep < onboardingSteps.length - 1) {
+    onboardingStep += 1;
+    renderOnboardingStep();
+    return;
+  }
+
+  onboardingNextButton.disabled = true;
+  onboardingError.textContent = "";
+  try {
+    await finishOnboarding();
+  } catch (error) {
+    onboardingError.textContent = error.message;
+  } finally {
+    onboardingNextButton.disabled = false;
+  }
+});
+
+onboardingForm.addEventListener("input", () => {
+  if (onboardingStep === onboardingSteps.length - 1) {
+    renderOnboardingReview();
+  }
+});
+
 manualSourceForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   formError.textContent = "";
@@ -431,4 +745,6 @@ clipGrid.addEventListener("click", async (event) => {
   }
 });
 
-loadDashboard().finally(startPolling);
+loadDashboard()
+  .then(maybeOpenOnboarding)
+  .finally(startPolling);

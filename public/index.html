@@ -14,6 +14,7 @@
           <span>ClipRO</span>
         </div>
         <nav class="nav-list">
+          <a class="nav-item" href="#creatorSetup">Setup</a>
           <a class="nav-item is-active" href="#accounts">Accounts</a>
           <a class="nav-item" href="#sources">Sources</a>
           <a class="nav-item" href="#jobs">Jobs</a>
@@ -29,6 +30,20 @@
           </div>
           <button class="ghost-button" id="syncAllButton" type="button">Sync sources</button>
         </header>
+
+        <section class="setup-panel" id="creatorSetup" aria-labelledby="setupHeading">
+          <div>
+            <p class="eyebrow">Creator setup</p>
+            <h2 id="setupHeading">Ready for first clips</h2>
+            <div class="setup-summary" id="setupSummary"></div>
+          </div>
+          <div class="setup-actions">
+            <div class="setup-progress" aria-label="Onboarding progress">
+              <span id="setupProgressBar"></span>
+            </div>
+            <button class="primary-button" id="openOnboardingButton" type="button">Start setup</button>
+          </div>
+        </section>
 
         <section class="metrics" aria-label="Workspace metrics">
           <article class="metric">
@@ -182,6 +197,140 @@
         <span>Connect an account or start a job.</span>
       </div>
     </template>
+
+    <div class="onboarding-overlay is-hidden" id="onboardingOverlay" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+      <section class="onboarding-dialog">
+        <header class="onboarding-header">
+          <div>
+            <p class="eyebrow" id="onboardingStepLabel">Creator setup</p>
+            <h2 id="onboardingTitle">Creator profile</h2>
+          </div>
+          <button class="icon-button" id="closeOnboardingButton" type="button" aria-label="Close setup">×</button>
+        </header>
+
+        <div class="step-dots" aria-label="Setup steps">
+          <span class="is-active"></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+
+        <form id="onboardingForm">
+          <section class="onboarding-step" data-step="0">
+            <div class="field-grid">
+              <label>
+                <span>Creator or channel name</span>
+                <input name="creatorName" placeholder="Channel name" autocomplete="organization" />
+              </label>
+              <label>
+                <span>Content type</span>
+                <select name="creatorCategory">
+                  <option>Gaming</option>
+                  <option>Podcast</option>
+                  <option>Education</option>
+                  <option>Stream</option>
+                  <option>General</option>
+                </select>
+              </label>
+            </div>
+            <fieldset class="choice-group">
+              <legend>Primary goal</legend>
+              <label class="choice-card">
+                <input type="radio" name="goal" value="Grow audience" checked />
+                <span>Grow audience</span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="goal" value="Repurpose content" />
+                <span>Repurpose content</span>
+              </label>
+              <label class="choice-card">
+                <input type="radio" name="goal" value="Find viral moments" />
+                <span>Find viral moments</span>
+              </label>
+            </fieldset>
+          </section>
+
+          <section class="onboarding-step is-hidden" data-step="1">
+            <fieldset class="choice-group platform-choice-group">
+              <legend>Connect platforms</legend>
+              <label class="choice-card">
+                <input type="checkbox" name="platforms" value="youtube" checked />
+                <span>YouTube uploads and streams</span>
+              </label>
+              <label class="choice-card">
+                <input type="checkbox" name="platforms" value="twitch" />
+                <span>Twitch VODs</span>
+              </label>
+              <label class="choice-card">
+                <input type="checkbox" name="platforms" value="kick" />
+                <span>Kick replays</span>
+              </label>
+            </fieldset>
+            <label>
+              <span>Main platform</span>
+              <select name="primaryPlatform">
+                <option value="youtube">YouTube</option>
+                <option value="twitch">Twitch</option>
+                <option value="kick">Kick</option>
+              </select>
+            </label>
+          </section>
+
+          <section class="onboarding-step is-hidden" data-step="2">
+            <div class="field-grid">
+              <label>
+                <span>Default frame</span>
+                <select name="defaultFormat">
+                  <option>9:16</option>
+                  <option>1:1</option>
+                  <option>16:9</option>
+                </select>
+              </label>
+              <label>
+                <span>Clips per source</span>
+                <input name="defaultClipCount" type="number" min="1" max="12" value="5" />
+              </label>
+            </div>
+            <div class="form-row three">
+              <label>
+                <span>Min seconds</span>
+                <input name="defaultMinDuration" type="number" min="10" max="90" value="20" />
+              </label>
+              <label>
+                <span>Max seconds</span>
+                <input name="defaultMaxDuration" type="number" min="15" max="180" value="60" />
+              </label>
+              <label>
+                <span>Posting pace</span>
+                <select name="postingPace">
+                  <option>Daily</option>
+                  <option>3x weekly</option>
+                  <option>Weekly</option>
+                </select>
+              </label>
+            </div>
+            <label class="check-chip">
+              <input name="defaultCaptions" type="checkbox" checked />
+              <span>Caption every clip</span>
+            </label>
+          </section>
+
+          <section class="onboarding-step is-hidden" data-step="3">
+            <div class="review-list" id="onboardingReview"></div>
+            <label class="check-chip">
+              <input name="autoSync" type="checkbox" checked />
+              <span>Sync new videos automatically</span>
+            </label>
+          </section>
+
+          <p class="form-error" id="onboardingError" role="alert"></p>
+          <footer class="onboarding-footer">
+            <button class="ghost-button" id="onboardingBackButton" type="button">Back</button>
+            <button class="primary-button" id="onboardingNextButton" type="button">Next</button>
+          </footer>
+        </form>
+      </section>
+    </div>
 
     <script src="/app.js" type="module"></script>
   </body>

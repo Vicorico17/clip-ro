@@ -33,6 +33,10 @@ body {
     sans-serif;
 }
 
+body.has-modal {
+  overflow: hidden;
+}
+
 button,
 input,
 select {
@@ -161,6 +165,48 @@ h3 {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
   margin-bottom: 18px;
+}
+
+.setup-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 18px;
+  padding: 18px;
+  border: 1px solid rgba(15, 118, 110, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: var(--shadow);
+}
+
+.setup-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.setup-actions {
+  display: grid;
+  min-width: 210px;
+  gap: 10px;
+}
+
+.setup-progress {
+  overflow: hidden;
+  height: 8px;
+  border-radius: 999px;
+  background: #e9e3da;
+}
+
+.setup-progress span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width 180ms ease;
 }
 
 .metric,
@@ -536,6 +582,183 @@ select:focus {
   color: var(--ink);
 }
 
+.onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(23, 25, 31, 0.46);
+}
+
+.onboarding-dialog {
+  width: min(720px, 100%);
+  max-height: min(820px, calc(100vh - 40px));
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 28px 90px rgba(23, 25, 31, 0.24);
+}
+
+.onboarding-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 20px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.icon-button {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 22px;
+  line-height: 1;
+}
+
+.step-dots {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 14px 20px 0;
+}
+
+.step-dots span {
+  height: 6px;
+  border-radius: 999px;
+  background: #e9e3da;
+}
+
+.step-dots span.is-active,
+.step-dots span.is-complete {
+  background: var(--accent);
+}
+
+#onboardingForm {
+  display: grid;
+  gap: 18px;
+  padding: 20px;
+}
+
+.onboarding-step {
+  display: grid;
+  gap: 16px;
+}
+
+.onboarding-overlay.is-hidden,
+.onboarding-step.is-hidden {
+  display: none;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.choice-group {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.platform-choice-group {
+  grid-template-columns: 1fr;
+}
+
+.choice-group legend {
+  grid-column: 1 / -1;
+  margin-bottom: 2px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.choice-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 54px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.choice-card input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.choice-card span {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.choice-card:has(input:checked) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+}
+
+.review-list {
+  display: grid;
+  gap: 10px;
+}
+
+.review-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.review-row span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.review-row strong {
+  min-width: 0;
+  text-align: right;
+}
+
+.onboarding-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 @media (max-width: 1080px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -582,8 +805,24 @@ select:focus {
   .metrics,
   .form-row,
   .form-row.three,
-  .manual-source {
+  .manual-source,
+  .setup-panel,
+  .field-grid,
+  .choice-group {
     grid-template-columns: 1fr;
+  }
+
+  .setup-actions {
+    min-width: 0;
+  }
+
+  .review-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .review-row strong {
+    text-align: left;
   }
 
   .sidebar {

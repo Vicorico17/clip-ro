@@ -13,6 +13,7 @@ Then open `http://localhost:3000`.
 ## What Works Now
 
 - Simulated connected accounts for YouTube, Twitch, and Kick.
+- First-run creator onboarding for channel profile, platforms, goals, clip defaults, and auto-sync preference.
 - Source syncing that imports sample long-form videos, VODs, and stream replays.
 - Manual URL import for a YouTube, Twitch, or Kick source.
 - Source selection and clip-generation settings.
