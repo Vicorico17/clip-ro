@@ -43,3 +43,7 @@ This is intentionally dependency-light and runs with Node only. The account and 
 5. Move processing to a worker queue.
 6. Add media ingest, transcription, moment scoring, and `ffmpeg` rendering.
 7. Add automatic rules such as “generate clips for every new VOD.”
+
+## Product Notes
+
+- [Clipping Best Practices](docs/clipping-best-practices.md) collects the current strategy for finding high-quality clips while keeping processing costs low.

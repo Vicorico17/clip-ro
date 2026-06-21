@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ClipRO</title>
+    <title>ClipRO Clipping</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
@@ -11,43 +11,35 @@
       <aside class="sidebar" aria-label="Workspace navigation">
         <div class="brand">
           <span class="brand-mark">CR</span>
-          <span>ClipRO</span>
+          <div>
+            <strong>ClipRO</strong>
+            <span>Clipping workspace</span>
+          </div>
         </div>
         <nav class="nav-list">
-          <a class="nav-item" href="#creatorSetup">Setup</a>
-          <a class="nav-item is-active" href="#accounts">Accounts</a>
-          <a class="nav-item" href="#sources">Sources</a>
-          <a class="nav-item" href="#jobs">Jobs</a>
+          <a class="nav-item is-active" href="#intake">Intake</a>
+          <a class="nav-item" href="#scout">Scout</a>
+          <a class="nav-item" href="#render">Render</a>
           <a class="nav-item" href="#clips">Clips</a>
+          <a class="nav-item" href="#learn">Learn</a>
         </nav>
       </aside>
 
       <main class="workspace">
-        <header class="topbar">
+        <header class="hero">
           <div>
-            <p class="eyebrow">Connected creator workspace</p>
-            <h1>Auto clips from long-form videos and streams</h1>
+            <p class="eyebrow">Scout first, render last</p>
+            <h1>Find strong short-form moments without wasting processing budget.</h1>
           </div>
-          <button class="ghost-button" id="syncAllButton" type="button">Sync sources</button>
+          <div class="hero-actions">
+            <button class="secondary-button" id="syncAllButton" type="button">Sync sources</button>
+            <button class="primary-button" form="clipForm" type="submit">Run Scout</button>
+          </div>
         </header>
-
-        <section class="setup-panel" id="creatorSetup" aria-labelledby="setupHeading">
-          <div>
-            <p class="eyebrow">Creator setup</p>
-            <h2 id="setupHeading">Ready for first clips</h2>
-            <div class="setup-summary" id="setupSummary"></div>
-          </div>
-          <div class="setup-actions">
-            <div class="setup-progress" aria-label="Onboarding progress">
-              <span id="setupProgressBar"></span>
-            </div>
-            <button class="primary-button" id="openOnboardingButton" type="button">Start setup</button>
-          </div>
-        </section>
 
         <section class="metrics" aria-label="Workspace metrics">
           <article class="metric">
-            <span>Connected</span>
+            <span>Accounts</span>
             <strong id="metricAccounts">0</strong>
           </article>
           <article class="metric">
@@ -64,30 +56,51 @@
           </article>
         </section>
 
-        <section class="panel" id="accounts" aria-labelledby="accountsHeading">
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Step 1</p>
-              <h2 id="accountsHeading">Connect accounts</h2>
-            </div>
-            <span class="status-pill">OAuth-ready demo</span>
-          </div>
-          <div class="account-grid" id="accountGrid"></div>
+        <section class="workflow-strip" aria-label="Clipping workflow">
+          <article>
+            <span>01</span>
+            <strong>Ingest</strong>
+            <p>Import metadata and captions before touching media.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <strong>Scout</strong>
+            <p>Use cheap transcript, audio, and structure signals first.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <strong>Review</strong>
+            <p>Gate safety, rights, clarity, and platform fit.</p>
+          </article>
+          <article>
+            <span>04</span>
+            <strong>Render</strong>
+            <p>Spend render time only on approved candidates.</p>
+          </article>
         </section>
 
-        <div class="work-grid">
-          <section class="panel" id="sources" aria-labelledby="sourcesHeading">
+        <div class="workspace-grid">
+          <section class="panel" id="intake" aria-labelledby="intakeHeading">
             <div class="section-heading">
               <div>
-                <p class="eyebrow">Step 2</p>
-                <h2 id="sourcesHeading">Synced long-form sources</h2>
+                <p class="eyebrow">Source intake</p>
+                <h2 id="intakeHeading">Connected accounts</h2>
               </div>
-              <button class="ghost-button" id="manualSourceToggle" type="button">Paste URL</button>
+              <span class="status-pill">OAuth mock</span>
+            </div>
+            <div class="account-grid" id="accountGrid"></div>
+
+            <div class="section-heading compact">
+              <div>
+                <p class="eyebrow">Approved source</p>
+                <h2>Long-form queue</h2>
+              </div>
+              <button class="secondary-button" id="manualSourceToggle" type="button">Paste URL</button>
             </div>
 
             <form class="manual-source is-hidden" id="manualSourceForm">
               <label>
-                <span>Manual video or stream URL</span>
+                <span>Video or stream URL</span>
                 <input
                   name="sourceUrl"
                   type="url"
@@ -95,32 +108,32 @@
                   autocomplete="off"
                 />
               </label>
-              <button class="primary-button" type="submit">Add source</button>
+              <button class="primary-button" type="submit">Add</button>
             </form>
 
             <div class="source-list" id="sourceList"></div>
           </section>
 
-          <section class="panel" aria-labelledby="generatorHeading">
+          <section class="panel scout-panel" id="scout" aria-labelledby="scoutHeading">
             <div class="section-heading">
               <div>
-                <p class="eyebrow">Step 3</p>
-                <h2 id="generatorHeading">Generate clips</h2>
+                <p class="eyebrow">Candidate detection</p>
+                <h2 id="scoutHeading">Scout rules</h2>
               </div>
               <span class="status-pill" id="selectedSourceBadge">No source</span>
             </div>
 
             <form class="clip-form" id="clipForm">
               <label>
-                <span>Selected source</span>
+                <span>Source</span>
                 <select id="sourceSelect" name="sourceId" required>
                   <option value="">Choose a source</option>
                 </select>
               </label>
 
-              <div class="form-row">
+              <div class="field-row">
                 <label>
-                  <span>Category</span>
+                  <span>Creator fit</span>
                   <select name="category">
                     <option>Gaming</option>
                     <option>Podcast</option>
@@ -130,7 +143,7 @@
                   </select>
                 </label>
                 <label>
-                  <span>Frame</span>
+                  <span>Output format</span>
                   <select name="format">
                     <option>9:16</option>
                     <option>1:1</option>
@@ -139,9 +152,9 @@
                 </label>
               </div>
 
-              <div class="form-row three">
+              <div class="field-row three">
                 <label>
-                  <span>Clips</span>
+                  <span>Final clips</span>
                   <input name="clipCount" type="number" min="1" max="12" value="5" />
                 </label>
                 <label>
@@ -154,39 +167,101 @@
                 </label>
               </div>
 
-              <label class="check-chip">
-                <input name="captions" type="checkbox" checked />
-                <span>Burn captions into exports</span>
-              </label>
+              <fieldset class="signal-grid">
+                <legend>Cheap signals before AI review</legend>
+                <label class="signal-card">
+                  <input type="checkbox" checked />
+                  <span>Hook in first 3 seconds</span>
+                </label>
+                <label class="signal-card">
+                  <input type="checkbox" checked />
+                  <span>Standalone clarity</span>
+                </label>
+                <label class="signal-card">
+                  <input type="checkbox" checked />
+                  <span>Payoff or lesson</span>
+                </label>
+                <label class="signal-card">
+                  <input type="checkbox" checked />
+                  <span>Low dead air</span>
+                </label>
+                <label class="signal-card">
+                  <input type="checkbox" checked />
+                  <span>Clean caption window</span>
+                </label>
+                <label class="signal-card">
+                  <input type="checkbox" checked />
+                  <span>Rights and safety gate</span>
+                </label>
+              </fieldset>
+
+              <div class="review-gates">
+                <div>
+                  <strong>Caption exports</strong>
+                  <span>Reuse approved transcript segments during render.</span>
+                </div>
+                <label class="switch">
+                  <input name="captions" type="checkbox" checked />
+                  <span></span>
+                </label>
+              </div>
 
               <p class="form-error" id="formError" role="alert"></p>
-              <button class="primary-button" type="submit">Generate clips</button>
+              <button class="primary-button full-button" type="submit">Score candidates</button>
             </form>
           </section>
-        </div>
 
-        <section class="panel" id="jobs" aria-labelledby="jobsHeading">
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Pipeline</p>
-              <h2 id="jobsHeading">Processing jobs</h2>
+          <section class="panel" id="render" aria-labelledby="renderHeading">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Processing</p>
+                <h2 id="renderHeading">Review queue</h2>
+              </div>
+              <span class="status-pill">Import to render</span>
             </div>
-            <span class="status-pill">Import · transcript · score · render</span>
-          </div>
-          <div class="job-list" id="jobList"></div>
-        </section>
+            <div class="job-list" id="jobList"></div>
+
+            <div class="cost-box">
+              <strong>Budget rule</strong>
+              <p>Score many candidate windows, run AI only on the strongest few, and render only approved clips.</p>
+            </div>
+          </section>
+        </div>
 
         <section class="clip-section" id="clips" aria-labelledby="clipsHeading">
           <div class="section-heading">
             <div>
-              <p class="eyebrow">Step 4</p>
-              <h2 id="clipsHeading">Generated clips</h2>
+              <p class="eyebrow">Approved outputs</p>
+              <h2 id="clipsHeading">Ready clips</h2>
             </div>
             <select id="clipFilter" aria-label="Clip filter">
               <option value="all">All sources</option>
             </select>
           </div>
           <div class="clip-grid" id="clipGrid"></div>
+        </section>
+
+        <section class="learning-loop" id="learn" aria-labelledby="learnHeading">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Learn</p>
+              <h2 id="learnHeading">Performance feedback loop</h2>
+            </div>
+          </div>
+          <div class="learning-grid">
+            <article>
+              <strong>Draft by default</strong>
+              <p>Create scheduler drafts until quality and rights checks prove reliable.</p>
+            </article>
+            <article>
+              <strong>Compare to baseline</strong>
+              <p>Update strategy only when retention, saves, and follows beat the saved baseline.</p>
+            </article>
+            <article>
+              <strong>Keep decisions explainable</strong>
+              <p>Store the hook, payoff, safety status, and reason for every selected clip.</p>
+            </article>
+          </div>
         </section>
       </main>
     </div>
@@ -197,140 +272,6 @@
         <span>Connect an account or start a job.</span>
       </div>
     </template>
-
-    <div class="onboarding-overlay is-hidden" id="onboardingOverlay" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
-      <section class="onboarding-dialog">
-        <header class="onboarding-header">
-          <div>
-            <p class="eyebrow" id="onboardingStepLabel">Creator setup</p>
-            <h2 id="onboardingTitle">Creator profile</h2>
-          </div>
-          <button class="icon-button" id="closeOnboardingButton" type="button" aria-label="Close setup">×</button>
-        </header>
-
-        <div class="step-dots" aria-label="Setup steps">
-          <span class="is-active"></span>
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-
-        <form id="onboardingForm">
-          <section class="onboarding-step" data-step="0">
-            <div class="field-grid">
-              <label>
-                <span>Creator or channel name</span>
-                <input name="creatorName" placeholder="Channel name" autocomplete="organization" />
-              </label>
-              <label>
-                <span>Content type</span>
-                <select name="creatorCategory">
-                  <option>Gaming</option>
-                  <option>Podcast</option>
-                  <option>Education</option>
-                  <option>Stream</option>
-                  <option>General</option>
-                </select>
-              </label>
-            </div>
-            <fieldset class="choice-group">
-              <legend>Primary goal</legend>
-              <label class="choice-card">
-                <input type="radio" name="goal" value="Grow audience" checked />
-                <span>Grow audience</span>
-              </label>
-              <label class="choice-card">
-                <input type="radio" name="goal" value="Repurpose content" />
-                <span>Repurpose content</span>
-              </label>
-              <label class="choice-card">
-                <input type="radio" name="goal" value="Find viral moments" />
-                <span>Find viral moments</span>
-              </label>
-            </fieldset>
-          </section>
-
-          <section class="onboarding-step is-hidden" data-step="1">
-            <fieldset class="choice-group platform-choice-group">
-              <legend>Connect platforms</legend>
-              <label class="choice-card">
-                <input type="checkbox" name="platforms" value="youtube" checked />
-                <span>YouTube uploads and streams</span>
-              </label>
-              <label class="choice-card">
-                <input type="checkbox" name="platforms" value="twitch" />
-                <span>Twitch VODs</span>
-              </label>
-              <label class="choice-card">
-                <input type="checkbox" name="platforms" value="kick" />
-                <span>Kick replays</span>
-              </label>
-            </fieldset>
-            <label>
-              <span>Main platform</span>
-              <select name="primaryPlatform">
-                <option value="youtube">YouTube</option>
-                <option value="twitch">Twitch</option>
-                <option value="kick">Kick</option>
-              </select>
-            </label>
-          </section>
-
-          <section class="onboarding-step is-hidden" data-step="2">
-            <div class="field-grid">
-              <label>
-                <span>Default frame</span>
-                <select name="defaultFormat">
-                  <option>9:16</option>
-                  <option>1:1</option>
-                  <option>16:9</option>
-                </select>
-              </label>
-              <label>
-                <span>Clips per source</span>
-                <input name="defaultClipCount" type="number" min="1" max="12" value="5" />
-              </label>
-            </div>
-            <div class="form-row three">
-              <label>
-                <span>Min seconds</span>
-                <input name="defaultMinDuration" type="number" min="10" max="90" value="20" />
-              </label>
-              <label>
-                <span>Max seconds</span>
-                <input name="defaultMaxDuration" type="number" min="15" max="180" value="60" />
-              </label>
-              <label>
-                <span>Posting pace</span>
-                <select name="postingPace">
-                  <option>Daily</option>
-                  <option>3x weekly</option>
-                  <option>Weekly</option>
-                </select>
-              </label>
-            </div>
-            <label class="check-chip">
-              <input name="defaultCaptions" type="checkbox" checked />
-              <span>Caption every clip</span>
-            </label>
-          </section>
-
-          <section class="onboarding-step is-hidden" data-step="3">
-            <div class="review-list" id="onboardingReview"></div>
-            <label class="check-chip">
-              <input name="autoSync" type="checkbox" checked />
-              <span>Sync new videos automatically</span>
-            </label>
-          </section>
-
-          <p class="form-error" id="onboardingError" role="alert"></p>
-          <footer class="onboarding-footer">
-            <button class="ghost-button" id="onboardingBackButton" type="button">Back</button>
-            <button class="primary-button" id="onboardingNextButton" type="button">Next</button>
-          </footer>
-        </form>
-      </section>
-    </div>
 
     <script src="/app.js" type="module"></script>
   </body>
